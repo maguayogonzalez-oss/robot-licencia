@@ -6,8 +6,6 @@ from email.mime.text import MIMEText
 # ========= CONFIGURACIÓN CORREO =========
 
 EMAIL_ORIGEN = "m.aguayo.gonzalez@gmail.com"
-EMAIL_DESTINO = "m.aguayo.gonzalez@gmail.com"
-EMAIL_PASSWORD = "mekk jfcy mgis jldq"
 
 LINK_RESERVA = "https://ww3.e-com.cl/pagos/licenciasweb_v4/index.asp?id=37"
 
@@ -82,3 +80,4 @@ while True:
 
     print("⏳ Esperando para próxima revisión...\n")
     time.sleep(1800)  # 30 minutos
+
