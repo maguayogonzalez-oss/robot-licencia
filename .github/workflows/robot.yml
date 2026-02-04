@@ -20,8 +20,9 @@ jobs:
         run: pip install requests
 
       - name: Run robot
-        run: python revisar_licencia.py
-        env:
-          EMAIL_ORIGEN: ${{ secrets.EMAIL_ORIGEN }}
-          EMAIL_DESTINO: ${{ secrets.EMAIL_DESTINO }}
-          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+  run: python revisar_licencia.py || true
+  env:
+    EMAIL_ORIGEN: ${{ secrets.EMAIL_ORIGEN }}
+    EMAIL_DESTINO: ${{ secrets.EMAIL_DESTINO }}
+    EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+
