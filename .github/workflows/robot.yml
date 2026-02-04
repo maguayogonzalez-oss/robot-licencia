@@ -2,12 +2,13 @@ name: Robot Licencia
 
 on:
   schedule:
-    - cron: "*/15 * * * *"   # cada 15 minutos
+    - cron: "*/15 * * * *"
   workflow_dispatch:
 
 jobs:
   run:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -17,12 +18,13 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install requests
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
 
       - name: Run robot
-  run: python revisar_licencia.py || true
-  env:
-    EMAIL_ORIGEN: ${{ secrets.EMAIL_ORIGEN }}
-    EMAIL_DESTINO: ${{ secrets.EMAIL_DESTINO }}
-    EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-
+        run: python revisar_licencia.py || true
+        env:
+          EMAIL_ORIGEN: ${{ secrets.EMAIL_ORIGEN }}
+          EMAIL_DESTINO: ${{ secrets.EMAIL_DESTINO }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
