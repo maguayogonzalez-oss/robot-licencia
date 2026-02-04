@@ -1,16 +1,13 @@
 import requests
-import time
 import smtplib
+import os
 from email.mime.text import MIMEText
 
-# ========= CONFIGURACIÓN CORREO =========
-
-EMAIL_ORIGEN = "m.aguayo.gonzalez@gmail.com"
+EMAIL_ORIGEN = os.environ["EMAIL_ORIGEN"]
+EMAIL_DESTINO = os.environ["EMAIL_DESTINO"]
+EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
 
 LINK_RESERVA = "https://ww3.e-com.cl/pagos/licenciasweb_v4/index.asp?id=37"
-
-# ========= FECHAS A REVISAR =========
-# Agrega o quita fechas libremente 👇
 
 FECHAS = [
     "16/02/2026",
@@ -35,15 +32,12 @@ BASE_DATA = {
     "Turno": "10"
 }
 
-# ========= FUNCIÓN CORREO =========
-
 def enviar_correo(fecha):
     mensaje = MIMEText(
         f"🚨 HAY HORAS DISPONIBLES 🚨\n\n"
         f"Fecha detectada: {fecha}\n\n"
-        f"Reserva aquí AHORA:\n{LINK_RESERVA}\n\n"
-        f"No lo pienses mucho, las horas vuelan.\n\n"
-        f"— Robot municipal de confianza 🤖"
+        f"Reserva aquí:\n{LINK_RESERVA}\n\n"
+        f"Corre antes que se acaben."
     )
     mensaje["Subject"] = f"🚨 LICENCIA DISPONIBLE – {fecha}"
     mensaje["From"] = EMAIL_ORIGEN
@@ -53,31 +47,13 @@ def enviar_correo(fecha):
         servidor.login(EMAIL_ORIGEN, EMAIL_PASSWORD)
         servidor.send_message(mensaje)
 
-# ========= LOOP PRINCIPAL =========
+for fecha in FECHAS:
+    data = BASE_DATA.copy()
+    data["fecha"] = fecha
 
-print("🤖 Robot municipal multi-fecha iniciado...")
+    response = requests.post(URL, data=data, timeout=10)
+    texto = response.text.lower()
 
-while True:
-    try:
-        for fecha in FECHAS:
-            data = BASE_DATA.copy()
-            data["fecha"] = fecha
-
-            response = requests.post(URL, data=data, timeout=10)
-            texto = response.text.lower()
-
-            if "no existen horas asignadas" not in texto:
-                print(f"🚨 HAY HORAS DISPONIBLES PARA {fecha} 🚨")
-                enviar_correo(fecha)
-                print("✉️ Correo enviado. Misión cumplida.")
-                exit()
-
-            else:
-                print(f"😴 {fecha}: todo copado")
-
-    except Exception as e:
-        print("⚠️ Error:", e)
-
-    print("⏳ Esperando para próxima revisión...\n")
-    time.sleep(1800)  # 30 minutos
-
+    if "no existen horas asignadas" not in texto:
+        enviar_correo(fecha)
+        break
