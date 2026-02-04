@@ -32,28 +32,34 @@ BASE_DATA = {
     "Turno": "10"
 }
 
-def enviar_correo(fecha):
-    mensaje = MIMEText(
-        f"🚨 HAY HORAS DISPONIBLES 🚨\n\n"
-        f"Fecha detectada: {fecha}\n\n"
-        f"Reserva aquí:\n{LINK_RESERVA}\n\n"
-        f"Corre antes que se acaben."
-    )
-    mensaje["Subject"] = f"🚨 LICENCIA DISPONIBLE – {fecha}"
-    mensaje["From"] = EMAIL_ORIGEN
-    mensaje["To"] = EMAIL_DESTINO
-
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as servidor:
-        servidor.login(EMAIL_ORIGEN, EMAIL_PASSWORD)
-        servidor.send_message(mensaje)
+import time
+import requests
 
 for fecha in FECHAS:
     data = BASE_DATA.copy()
     data["fecha"] = fecha
 
-    response = requests.post(URL, data=data, timeout=10)
-    texto = response.text.lower()
+    try:
+        response = requests.post(
+            URL,
+            data=data,
+            timeout=30  # ⬅️ más paciencia
+        )
 
-    if "no existen horas asignadas" not in texto:
-        enviar_correo(fecha)
-        break
+        texto = response.text.lower()
+
+        if "no existen horas asignadas" not in texto:
+            enviar_correo(fecha)
+            print(f"Correo enviado para fecha {fecha}")
+            break
+        else:
+            print(f"{fecha}: todo copado")
+
+    except requests.exceptions.Timeout:
+        print(f"⚠️ Timeout al consultar {fecha}, sigo con la siguiente...")
+        continue
+
+    except Exception as e:
+        print(f"⚠️ Error inesperado en {fecha}: {e}")
+        continue
+
